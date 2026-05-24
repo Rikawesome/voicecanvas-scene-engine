@@ -1,0 +1,59 @@
+import { useState } from 'react';
+import { SceneState, Vector3D } from './types/scene';
+import { CanvasView } from './components/CanvasView';
+import { ControlPanel } from './components/ControlPanel';
+import { DebugPanel } from './components/DebugPanel';
+
+// Default starter dataset for our director canvas stage
+const INITIAL_SCENE_STATE: SceneState = {
+  sceneId: "voicecanvas-prototype-v1",
+  characters: [
+    {
+      id: "character-mannequin-1",
+      name: "Hero Character (Alpha)",
+      position: { x: 0, y: 0.8, z: 0 } // y: 0.8 keeps the model's torso sitting cleanly on top of the ground plane
+    }
+  ]
+};
+
+export default function App() {
+  const [sceneState, setSceneState] = useState<SceneState>(INITIAL_SCENE_STATE);
+
+  // Central tracking dispatcher that updates state coordinates across the app
+  const handleUpdatePosition = (id: string, newPosition: Vector3D) => {
+    setSceneState((prevState) => ({
+      ...prevState,
+      characters: prevState.characters.map((char) =>
+        char.id === id ? { ...char, position: newPosition } : char
+      ),
+    }));
+  };
+
+  return (
+    <div style={{ display: 'flex', width: '100vw', height: '100vh', backgroundColor: '#121214' }}>
+      
+      {/* Left Column: Interactive 3D Viewport Window Space */}
+      <div style={{ flex: 1, height: '100%', position: 'relative' }}>
+        <CanvasView characters={sceneState.characters} />
+      </div>
+
+      {/* Right Column: Direction Controller Dashboard Utility Sidebar */}
+      <div style={{
+        width: '360px',
+        height: '100%',
+        backgroundColor: '#202024',
+        borderLeft: '1px solid #29292e',
+        display: 'flex',
+        flexDirection: 'column',
+        zIndex: 10 // Ensures UI overlays float cleanly above the WebGL background layer
+      }}>
+        <ControlPanel 
+          characters={sceneState.characters} 
+          onUpdatePosition={handleUpdatePosition} 
+        />
+        <DebugPanel sceneState={sceneState} />
+      </div>
+
+    </div>
+  );
+}

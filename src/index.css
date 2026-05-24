@@ -1,0 +1,171 @@
+/* Full viewport reset to ensure the 3D canvas behaves correctly */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  min-height: -webkit-fill-available; /* Fixed layout stretch for iOS safari frames */
+  overflow: hidden;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #0e0e10;
+  color: #e1e1e6;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+/* Styled scrollbar layout container for our text panels/JSON logs */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0e0e10;
+}
+::-webkit-scrollbar-thumb {
+  background: #21222c;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #282a36;
+}
+
+/* Layout container housing the viewport and the dashboard panel */
+.app-workspace {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  height: 100svh; /* Uses dynamic small viewport height to prevent mobile bar overlap */
+  flex-direction: row; /* Default layout direction: side-by-side desktop split */
+  background-color: #0e0e10;
+  overflow: hidden;
+}
+
+/* The 3D Canvas window container */
+.canvas-container {
+  flex: 1;
+  height: 100%;
+  position: relative;
+  outline: none;
+}
+
+/* The structural configuration dashboard control panel */
+.dashboard-sidebar {
+  width: 340px;
+  height: 100%;
+  background-color: #18181c;
+  border-left: 1px solid #29292e;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  overflow: hidden; /* Keeps the main container frame rigid */
+}
+
+/* Dedicated scrollable viewport layer for controls (Available Everywhere) */
+.sidebar-scroll-content {
+  flex: 1;
+  overflow-y: auto; /* Unlocks vertical touch scrolling explicitly */
+  -webkit-overflow-scrolling: touch; /* Ensures silky smooth momentum scrolling on mobile */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Smooth Interactive Transmutations for Dashboard Components */
+button, input {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:active {
+  transform: scale(0.97); /* Gives interactive haptic feel on mobile screen taps */
+}
+
+/* Smart Mobile Orientation Notice Banner */
+.orientation-notice {
+  display: none; /* Hidden by default on desktop monitors */
+  background-color: #00f3ff;
+  color: #121214;
+  text-align: center;
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  z-index: 200;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+/* ==========================================================================
+   Responsive Tablet & Mobile Adaptations (Portrait View)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .app-workspace {
+    flex-direction: column; /* Stacks the viewport on top of controls vertically */
+  }
+
+  .canvas-container {
+    height: 100%; /* Canvas takes full screen, modals hover over via App.tsx states */
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .dashboard-sidebar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    background-color: transparent;
+    border-left: none;
+    pointer-events: none; /* Allows user to drag the 3D scene background freely */
+  }
+  
+  /* Ensure components inside the overlay wrapper reactivate click controls */
+  .dashboard-sidebar > * {
+    pointer-events: auto;
+  }
+}
+
+/* Only display the reminder on small mobile screens held vertically */
+@media (max-width: 768px) and (orientation: portrait) {
+  .orientation-notice {
+    display: block; /* Alerts vertical portrait developers */
+  }
+}
+
+/* ==========================================================================
+   Mobile Landscape Viewport Optimizations (When phone is turned sideways)
+   ========================================================================== */
+@media (orientation: landscape) and (max-height: 550px) {
+  .app-workspace {
+    flex-direction: row; /* Snaps layout back to side-by-side desktop style */
+  }
+
+  .canvas-container {
+    height: 100%;
+    position: relative;
+    flex: 1; /* Captures the full left side of the wide screen */
+  }
+
+  .dashboard-sidebar {
+    position: relative;
+    width: 280px; /* Slims down the controller sidebar slightly to optimize screen space */
+    height: 100%;
+    border-top: none;
+    border-left: 1px solid #29292e;
+    pointer-events: auto;
+  }
+
+  .orientation-notice {
+    display: none; /* Explicit safety mask override */
+  }
+}
