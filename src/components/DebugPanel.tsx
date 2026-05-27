@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { SceneState } from '../types/scene';
+import { CanvasInstruction, SceneState } from '../types/scene';
 
 interface DebugPanelProps {
   sceneState: SceneState;
+  lastInstruction?: CanvasInstruction | null;
 }
 
-export function DebugPanel({ sceneState }: DebugPanelProps) {
+export function DebugPanel({ sceneState, lastInstruction }: DebugPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   // High-visibility stream optimization: strips un-rotated bones out of the log preview
@@ -14,6 +15,7 @@ export function DebugPanel({ sceneState }: DebugPanelProps) {
       sceneId: sceneState.sceneId,
       mood: sceneState.mood,
       camera: sceneState.camera,
+      lastInstruction: lastInstruction || 'NO_STRUCTURED_INSTRUCTION_APPLIED',
       characters: sceneState.characters.map(char => {
         // Collect only the skeletal joints that are actively transformed
         const activeJoints = Object.entries(char.skeleton).reduce((acc, [boneName, rot]) => {
@@ -35,7 +37,7 @@ export function DebugPanel({ sceneState }: DebugPanelProps) {
         };
       })
     };
-  }, [sceneState]);
+  }, [sceneState, lastInstruction]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', marginTop: 'auto', backgroundColor: '#18181f' }}>

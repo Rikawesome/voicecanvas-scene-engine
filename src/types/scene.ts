@@ -10,9 +10,57 @@ export type SemanticModifier =
   | 'defensive'
   | 'aggressive'
   | 'lookAtTarget';
-export type PoseVariant = 'left' | 'right';
+export type PoseVariant =
+  | 'left'
+  | 'right'
+  | 'jab'
+  | 'cross'
+  | 'hook'
+  | 'uppercut'
+  | 'runForward'
+  | 'chaseDrive'
+  | 'dashStart'
+  | 'lookBackRun'
+  | 'boxingGuard'
+  | 'highGuard'
+  | 'lowGuard'
+  | 'sideGuard'
+  | 'cautiousGuard'
+  | 'interceptBlock';
 export type HandGestureKey = 'fist' | 'openPalm' | 'pointing' | 'grip' | 'blockingPalm' | 'sign';
-export type CameraIntent = 'closeup' | 'wide' | 'low' | 'high' | 'ots' | 'lowOts' | 'standoff' | 'impact';
+export type CameraIntent =
+  | 'closeup'
+  | 'wide'
+  | 'low'
+  | 'high'
+  | 'ots'
+  | 'lowOts'
+  | 'standoff'
+  | 'impact'
+  | 'twoShot'
+  | 'groupShot'
+  | 'impactFrame'
+  | 'reactionFrame'
+  | 'establishing'
+  | 'dominanceLowAngle'
+  | 'vulnerabilityHighAngle';
+export type CompositionIntent =
+  | 'neutral'
+  | 'protectorForeground'
+  | 'attackerForeground'
+  | 'observerWide'
+  | 'surrounded'
+  | 'powerImbalance';
+export type SceneBeatKey =
+  | 'confrontation'
+  | 'attackWindup'
+  | 'impactReaction'
+  | 'dialogueTension'
+  | 'chase'
+  | 'reveal'
+  | 'retreat'
+  | 'dominance'
+  | 'vulnerability';
 export type RelationshipIntent =
   | 'faceEachOther'
   | 'moveCloser'
@@ -21,8 +69,20 @@ export type RelationshipIntent =
   | 'defendAgainstTarget'
   | 'retreatFromTarget'
   | 'behindTarget'
+  | 'surroundTarget'
+  | 'betweenTargets'
+  | 'observerLane'
   | 'standoff'
   | 'impactMoment';
+export type ActorRole =
+  | 'lead'
+  | 'rival'
+  | 'attacker'
+  | 'defender'
+  | 'victim'
+  | 'observer'
+  | 'support'
+  | 'background';
 
 export interface Vector3D {
   x: number;
@@ -104,6 +164,7 @@ export type PoseJointKey = keyof Pick<
 export interface CharacterState {
   id: string;
   name: string;
+  role?: ActorRole;
   position: Vector3D;
   rotation: Vector3D; // Base model orientation on the floor grid
   poseName: string;   // Retained for backward compatibility with your UI panel state
@@ -129,25 +190,44 @@ export interface SceneState {
 }
 
 export interface ActorCanvasInstruction {
-  actorId: string;
+  actor?: string;
+  actorId?: string;
+  role?: ActorRole;
   basePose?: string;
   stance?: string;
   action?: string;
   modifiers?: SemanticModifier[];
+  target?: string;
   targetId?: string;
+  position?: Vector3D;
+  rotation?: Vector3D;
   variant?: PoseVariant;
   intensity?: number;
 }
 
 export interface RelationshipCanvasInstruction {
   type: RelationshipIntent;
+  actor?: string;
   actorId?: string;
+  target?: string;
   targetId?: string;
+  secondaryTarget?: string;
+  secondaryTargetId?: string;
 }
 
 export interface CanvasInstruction {
   actors: ActorCanvasInstruction[];
   relationships?: RelationshipCanvasInstruction[];
+  focusActors?: string[];
+  secondaryActors?: string[];
   camera?: CameraIntent;
+  composition?: CompositionIntent;
   mood?: SceneMood;
+}
+
+export interface CanvasInstructionApplyResult {
+  updatedCharacters?: CharacterState[];
+  updatedMood?: SceneMood;
+  updatedCamera?: CameraState;
+  message?: string;
 }

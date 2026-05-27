@@ -29,8 +29,10 @@ Desktop.ini
 # TypeScript cache
 *.tsbuildinfo
 
+# Local visual QA captures
+test-screenshots/
+
 # Local asset workshop files
 *.blend1
 FBX2glTF-windows-x86_64/
 FBX2glTF-windows-x86_64.exe
-

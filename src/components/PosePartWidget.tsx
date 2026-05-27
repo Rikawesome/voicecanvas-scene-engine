@@ -67,14 +67,16 @@ const PART_DEFINITIONS: Record<PoseJointKey, PosePartDefinition> = {
     label: 'Left Elbow',
     controls: [
       { axis: 'x', label: 'Bend' },
-      { axis: 'y', label: 'Twist' }
+      { axis: 'y', label: 'Twist' },
+      { axis: 'z', label: 'Side Angle' }
     ]
   },
   rightForearm: {
     label: 'Right Elbow',
     controls: [
       { axis: 'x', label: 'Bend' },
-      { axis: 'y', label: 'Twist' }
+      { axis: 'y', label: 'Twist' },
+      { axis: 'z', label: 'Side Angle' }
     ]
   },
   leftHandTerminal: {
@@ -112,13 +114,17 @@ const PART_DEFINITIONS: Record<PoseJointKey, PosePartDefinition> = {
   leftShin: {
     label: 'Left Knee',
     controls: [
-      { axis: 'x', label: 'Bend' }
+      { axis: 'x', label: 'Bend' },
+      { axis: 'y', label: 'Turn' },
+      { axis: 'z', label: 'Side Angle' }
     ]
   },
   rightShin: {
     label: 'Right Knee',
     controls: [
-      { axis: 'x', label: 'Bend' }
+      { axis: 'x', label: 'Bend' },
+      { axis: 'y', label: 'Turn' },
+      { axis: 'z', label: 'Side Angle' }
     ]
   },
   leftFoot: {

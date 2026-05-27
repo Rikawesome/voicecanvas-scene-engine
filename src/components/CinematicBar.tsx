@@ -1,12 +1,24 @@
-import { SceneMood } from '../types/scene';
+import { CameraIntent, SceneMood } from '../types/scene';
 
 interface CinematicBarProps {
-  onApplyCameraPreset: (type: string) => void;
+  onApplyCameraPreset: (type: CameraIntent) => void;
   currentMood: SceneMood;
   onChangeMood: (mood: SceneMood) => void;
   onSaveScene: () => void;
   onLoadFileTrigger: () => void;
 }
+
+const CAMERA_BUTTONS: Array<{ label: string; intent: CameraIntent }> = [
+  { label: 'Two-Shot', intent: 'twoShot' },
+  { label: 'Group Shot', intent: 'groupShot' },
+  { label: 'Establishing', intent: 'establishing' },
+  { label: 'Impact Frame', intent: 'impactFrame' },
+  { label: 'Reaction', intent: 'reactionFrame' },
+  { label: 'OTS', intent: 'ots' },
+  { label: 'Low Power', intent: 'dominanceLowAngle' },
+  { label: 'High Vulnerable', intent: 'vulnerabilityHighAngle' },
+  { label: 'Wide Master', intent: 'wide' }
+];
 
 export function CinematicBar({ 
   onApplyCameraPreset, 
@@ -36,7 +48,7 @@ export function CinematicBar({
         gap: '8px',
         pointerEvents: 'auto' // Buttons stay fully clickable
       }}>
-        {/* ROW 1: VERTICAL-SAFE CAMERA VIEW PRESETS */}
+        {/* ROW 1: STORYBOARD-SAFE CAMERA COMPOSITION PRESETS */}
         <div style={{
           display: 'flex',
           gap: '6px',
@@ -44,12 +56,11 @@ export function CinematicBar({
           scrollbarWidth: 'none',
           WebkitOverflowScrolling: 'touch'
         }} className="no-scrollbar">
-          <button onClick={() => onApplyCameraPreset('standoff')} style={pillStyle}>Standoff</button>
-          <button onClick={() => onApplyCameraPreset('impact')} style={pillStyle}>Impact Shot</button>
-          <button onClick={() => onApplyCameraPreset('ots')} style={pillStyle}>Over-Shoulder</button>
-          <button onClick={() => onApplyCameraPreset('lowOts')} style={pillStyle}>Low OTS</button>
-          <button onClick={() => onApplyCameraPreset('closeup')} style={pillStyle}>Close-Up</button>
-          <button onClick={() => onApplyCameraPreset('wide')} style={pillStyle}>Wide Master</button>
+          {CAMERA_BUTTONS.map((button) => (
+            <button key={button.intent} onClick={() => onApplyCameraPreset(button.intent)} style={pillStyle}>
+              {button.label}
+            </button>
+          ))}
         </div>
 
         {/* ROW 2: CONTRAST SHADING MOODS & PERSISTENCE HOOKS */}

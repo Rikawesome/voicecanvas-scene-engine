@@ -1,0 +1,143 @@
+{
+  "id": "attack-vs-intercept-block-draft-001",
+  "status": "draft_reference",
+  "source": "Manual VoiceCanvas staging pass against PoseMyArt two-actor blocking reference",
+  "intendedFutureUse": "Candidate two-actor scene beat preset, not a standalone pose preset.",
+  "whySaved": [
+    "Preserves the user's experimental attack-vs-block choreography before further posing work overwrites the canvas.",
+    "Captures useful relationship staging: attacker advances while defender turns away and intercepts the incoming attack.",
+    "Provides source material for a future canvas instruction or scene beat after block and attack variants are cleaner."
+  ],
+  "recommendedFuturePreset": {
+    "type": "sceneBeat",
+    "key": "attackVsInterceptBlock",
+    "description": "Attacker strikes forward while defender pivots away and catches/intercepts the attack with a raised hand or forearm.",
+    "needsBeforePromotion": [
+      "Clean interceptBlock defender pose validated as a single-actor block variant.",
+      "Clean attacker strike or lunge variant with stable arm and leg intent.",
+      "Camera framing pass focused on contact readability."
+    ]
+  },
+  "rawCapture": {
+    "sceneId": "voicecanvas-milestone-4",
+    "mood": "neutral",
+    "camera": {
+      "position": { "x": 0.23, "y": 1.91, "z": 3.95 },
+      "target": { "x": -0.4, "y": 1, "z": 0 }
+    },
+    "characters": [
+      {
+        "id": "char-riku",
+        "name": "Riku (Lead)",
+        "roleIntent": "defender",
+        "position": { "x": -1.6, "y": 0, "z": 0 },
+        "rotation": { "x": 0, "y": 90, "z": 0 },
+        "poseName": "neutral",
+        "currentStance": "neutral",
+        "currentAction": "none",
+        "activeSkeletalJoints": {
+          "head": { "x": 21, "y": 51, "z": 0 },
+          "torso": { "x": 10, "y": -29, "z": -23 },
+          "pelvis": { "x": 0, "y": 37, "z": 0 },
+          "leftUpperArm": { "x": -1, "y": 32, "z": -12 },
+          "leftForearm": { "x": -138, "y": 180, "z": 53 },
+          "rightUpperArm": { "x": 42, "y": -53, "z": 119 },
+          "rightForearm": { "x": -64, "y": 180, "z": -78 },
+          "leftThigh": { "x": -40, "y": 0, "z": -37 },
+          "leftShin": { "x": 37, "y": 0, "z": 0 },
+          "rightThigh": { "x": 23, "y": 0, "z": 34 },
+          "rightShin": { "x": 18, "y": 0, "z": 0 },
+          "leftHandTerminal": { "x": -83, "y": -89, "z": -4 }
+        }
+      },
+      {
+        "id": "char-kiki",
+        "name": "Kiki (Rival)",
+        "roleIntent": "attacker",
+        "position": { "x": 0.1, "y": 0, "z": -1.7 },
+        "rotation": { "x": 0, "y": 270, "z": 0 },
+        "poseName": "neutral",
+        "currentStance": "neutral",
+        "currentAction": "none",
+        "activeSkeletalJoints": {
+          "torso": { "x": 12, "y": 40, "z": 0 },
+          "pelvis": { "x": 12, "y": 32, "z": 1 },
+          "leftUpperArm": { "x": -102, "y": 0, "z": 0 },
+          "leftForearm": { "x": -23, "y": 0, "z": -9 },
+          "rightUpperArm": { "x": 0, "y": 0, "z": 42 },
+          "rightForearm": { "x": -149, "y": 0, "z": -4 },
+          "leftThigh": { "x": 7, "y": 0, "z": 0 },
+          "leftShin": { "x": 42, "y": 0, "z": 0 },
+          "rightThigh": { "x": -67, "y": 0, "z": 0 },
+          "rightShin": { "x": 64, "y": 0, "z": 0 },
+          "rightFoot": { "x": -9, "y": 0, "z": 0 }
+        }
+      }
+    ]
+  },
+  "cleanedDraft": {
+    "camera": {
+      "position": { "x": 0.23, "y": 1.91, "z": 3.95 },
+      "target": { "x": -0.4, "y": 1, "z": 0 }
+    },
+    "characters": [
+      {
+        "id": "char-riku",
+        "roleIntent": "defender",
+        "recommendedPose": {
+          "basePose": "block",
+          "variant": "interceptBlock",
+          "currentStance": "guard",
+          "currentAction": "block"
+        },
+        "position": { "x": -1.6, "y": 0, "z": 0 },
+        "rotation": { "x": 0, "y": 90, "z": 0 },
+        "activeSkeletalJoints": {
+          "head": { "x": 20, "y": 42, "z": 0 },
+          "torso": { "x": 10, "y": -29, "z": -18 },
+          "pelvis": { "x": 0, "y": 30, "z": 0 },
+          "leftUpperArm": { "x": 4, "y": 32, "z": -16 },
+          "leftForearm": { "x": -124, "y": 72, "z": 48 },
+          "rightUpperArm": { "x": 18, "y": -46, "z": 52 },
+          "rightForearm": { "x": -72, "y": 72, "z": -42 },
+          "leftThigh": { "x": -40, "y": 0, "z": -32 },
+          "leftShin": { "x": 37, "y": 0, "z": 0 },
+          "rightThigh": { "x": 23, "y": 0, "z": 30 },
+          "rightShin": { "x": 18, "y": 0, "z": 0 },
+          "leftHandTerminal": { "x": -65, "y": -70, "z": -4 },
+          "rightHandTerminal": { "x": 18, "y": 0, "z": 12 }
+        }
+      },
+      {
+        "id": "char-kiki",
+        "roleIntent": "attacker",
+        "recommendedPose": {
+          "basePose": "punch",
+          "variant": "cross",
+          "currentStance": "guard",
+          "currentAction": "punch"
+        },
+        "position": { "x": 0.1, "y": 0, "z": -1.7 },
+        "rotation": { "x": 0, "y": 270, "z": 0 },
+        "activeSkeletalJoints": {
+          "torso": { "x": 24, "y": 34, "z": 0 },
+          "pelvis": { "x": 10, "y": 26, "z": 1 },
+          "leftUpperArm": { "x": -98, "y": 0, "z": 0 },
+          "leftForearm": { "x": -12, "y": 0, "z": -6 },
+          "rightUpperArm": { "x": 0, "y": 0, "z": 42 },
+          "rightForearm": { "x": -118, "y": 0, "z": -4 },
+          "leftThigh": { "x": 7, "y": 0, "z": 0 },
+          "leftShin": { "x": 42, "y": 0, "z": 0 },
+          "rightThigh": { "x": -56, "y": 0, "z": 0 },
+          "rightShin": { "x": 56, "y": 0, "z": 0 },
+          "rightFoot": { "x": -9, "y": 0, "z": 0 }
+        }
+      }
+    ]
+  },
+  "notes": [
+    "The raw capture is preserved exactly from the user's exploratory scene data.",
+    "The cleaned draft reduces 180-degree arm twists to safer authored rotations.",
+    "This should not become a live preset until the attack pose and intercept block are both visually validated."
+  ]
+}

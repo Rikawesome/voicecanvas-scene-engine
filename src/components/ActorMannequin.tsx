@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { RoundedBox } from '@react-three/drei';
 import * as THREE from 'three';
 import { CharacterState, HandGestureKey, JointTransform, PoseJointKey } from '../types/scene';
 
@@ -30,8 +31,33 @@ const skinPalette = {
     secondary: '#ff2e7a',
     trim: '#fff2cc',
     joint: '#171318'
+  },
+  kanata: {
+    primary: '#a78bfa',
+    secondary: '#7c3aed',
+    trim: '#f5f3ff',
+    joint: '#181322'
+  },
+  mina: {
+    primary: '#34d399',
+    secondary: '#0f766e',
+    trim: '#ecfdf5',
+    joint: '#10231f'
   }
 };
+
+const paletteList = [skinPalette.riku, skinPalette.kiki, skinPalette.kanata, skinPalette.mina];
+
+function getActorPalette(character: CharacterState) {
+  const signature = `${character.id} ${character.name}`.toLowerCase();
+  if (signature.includes('kiki')) return skinPalette.kiki;
+  if (signature.includes('kanata')) return skinPalette.kanata;
+  if (signature.includes('mina')) return skinPalette.mina;
+  if (signature.includes('riku')) return skinPalette.riku;
+
+  const hash = [...signature].reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  return paletteList[hash % paletteList.length];
+}
 
 function applyJointRotation(group: THREE.Group | undefined, rot: JointTransform | undefined) {
   if (!group) return;
@@ -53,32 +79,70 @@ function partMaterialProps(color: string, selected: boolean) {
   };
 }
 
+function BodyBox({
+  args,
+  color,
+  selected = false,
+  position = [0, 0, 0],
+  radius = 0.045,
+}: {
+  args: [number, number, number];
+  color: string;
+  selected?: boolean;
+  position?: [number, number, number];
+  radius?: number;
+}) {
+  return (
+    <RoundedBox args={args} radius={radius} smoothness={5} position={position} castShadow receiveShadow>
+      <meshStandardMaterial {...partMaterialProps(color, selected)} />
+    </RoundedBox>
+  );
+}
+
 function LimbSegment({
   length,
   radius,
   color,
   selected = false,
   y = -0.5,
+  radiusTop,
+  radiusBottom,
 }: {
   length: number;
   radius: number;
   color: string;
   selected?: boolean;
   y?: number;
+  radiusTop?: number;
+  radiusBottom?: number;
 }) {
+  const top = radiusTop ?? radius;
+  const bottom = radiusBottom ?? radius;
+
   return (
     <mesh position={[0, y * length, 0]} castShadow receiveShadow>
-      <capsuleGeometry args={[radius, length, 8, 14]} />
+      {Math.abs(top - bottom) > 0.004
+        ? <cylinderGeometry args={[top, bottom, length, 16, 1]} />
+        : <capsuleGeometry args={[radius, length, 8, 14]} />}
       <meshStandardMaterial {...partMaterialProps(color, selected)} />
     </mesh>
   );
 }
 
-function JointBall({ color, radius = 0.075, selected = false }: { color: string; radius?: number; selected?: boolean }) {
+function JointBall({ color, radius = 0.06, selected = false }: { color: string; radius?: number; selected?: boolean }) {
   return (
     <mesh castShadow>
       <sphereGeometry args={[radius, 16, 16]} />
       <meshStandardMaterial {...partMaterialProps(color, selected)} roughness={0.48} />
+    </mesh>
+  );
+}
+
+function NeckColumn({ color, selected = false }: { color: string; selected?: boolean }) {
+  return (
+    <mesh position={[0, 0.06, 0]} castShadow receiveShadow>
+      <capsuleGeometry args={[0.075, 0.28, 10, 14]} />
+      <meshStandardMaterial {...partMaterialProps(color, selected)} />
     </mesh>
   );
 }
@@ -97,7 +161,7 @@ function HandSymbol({
   if (gesture === 'fist') {
     return (
       <mesh castShadow receiveShadow>
-        <sphereGeometry args={[0.085, 16, 16]} />
+        <sphereGeometry args={[0.105, 16, 16]} />
         <meshStandardMaterial {...materialProps} />
       </mesh>
     );
@@ -107,11 +171,11 @@ function HandSymbol({
     return (
       <group>
         <mesh castShadow receiveShadow>
-          <sphereGeometry args={[0.06, 14, 14]} />
+          <sphereGeometry args={[0.065, 14, 14]} />
           <meshStandardMaterial {...materialProps} />
         </mesh>
         <mesh position={[0, -0.13, 0]} castShadow receiveShadow>
-          <capsuleGeometry args={[0.026, 0.2, 6, 10]} />
+          <capsuleGeometry args={[0.028, 0.23, 6, 10]} />
           <meshStandardMaterial {...materialProps} />
         </mesh>
         <mesh position={[0, -0.25, 0]} rotation={[Math.PI, 0, 0]} castShadow receiveShadow>
@@ -135,11 +199,11 @@ function HandSymbol({
     return (
       <group>
         <mesh rotation={[0, 0, Math.PI / 2]} castShadow receiveShadow>
-          <boxGeometry args={[0.18, 0.035, 0.14]} />
+          <boxGeometry args={[0.2, 0.04, 0.15]} />
           <meshStandardMaterial {...materialProps} />
         </mesh>
         <mesh position={[0, -0.025, 0.075]} castShadow receiveShadow>
-          <boxGeometry args={[0.13, 0.025, 0.025]} />
+          <boxGeometry args={[0.14, 0.026, 0.026]} />
           <meshStandardMaterial {...materialProps} />
         </mesh>
       </group>
@@ -166,10 +230,9 @@ function HandSymbol({
   }
 
   return (
-    <mesh castShadow receiveShadow>
-      <boxGeometry args={[0.16, 0.035, 0.12]} />
+    <RoundedBox args={[0.18, 0.045, 0.13]} radius={0.018} smoothness={4} castShadow receiveShadow>
       <meshStandardMaterial {...materialProps} />
-    </mesh>
+    </RoundedBox>
   );
 }
 
@@ -182,7 +245,7 @@ export function ActorMannequin({
 }: ActorMannequinProps) {
   const rootRef = useRef<THREE.Group>(null);
   const rigRefs = useRef<RigRefs>({});
-  const palette = character.id.includes('kiki') ? skinPalette.kiki : skinPalette.riku;
+  const palette = getActorPalette(character);
 
   const isPartSelected = (jointKey: PoseJointKey) => isSelected && selectedJointKey === jointKey;
   const handlePartClick = (event: any, jointKey: PoseJointKey) => {
@@ -231,70 +294,87 @@ export function ActorMannequin({
       }}
     >
       {isSelected && (
-        <mesh position={[0, 1.05, 0]} raycast={() => null}>
-          <boxGeometry args={[1.15, 2.1, 1.0]} />
+        <mesh position={[0, 1.08, 0]} raycast={() => null}>
+          <boxGeometry args={[1.14, 2.22, 0.88]} />
           <meshBasicMaterial color="#00f3ff" wireframe transparent opacity={0.42} />
         </mesh>
       )}
 
       <group
         ref={(node) => { if (node) rigRefs.current.pelvis = node; }}
-        position={[0, 0.95, 0]}
+        position={[0, 1.02, 0]}
         onClick={(e) => handlePartClick(e, 'pelvis')}
       >
-        <mesh castShadow receiveShadow>
-          <boxGeometry args={[0.46, 0.28, 0.3]} />
-          <meshStandardMaterial {...partMaterialProps(palette.secondary, isPartSelected('pelvis'))} />
+        <BodyBox args={[0.48, 0.18, 0.3]} color={palette.secondary} selected={isPartSelected('pelvis')} position={[0, 0.03, 0]} radius={0.07} />
+        <BodyBox args={[0.66, 0.16, 0.34]} color={palette.secondary} selected={isPartSelected('pelvis')} position={[0, -0.08, 0]} radius={0.075} />
+        <mesh position={[-0.25, -0.13, 0]} raycast={() => null}>
+          <sphereGeometry args={[0.09, 16, 16]} />
+          <meshStandardMaterial {...partMaterialProps(palette.joint, isPartSelected('pelvis'))} />
+        </mesh>
+        <mesh position={[0.25, -0.13, 0]} raycast={() => null}>
+          <sphereGeometry args={[0.09, 16, 16]} />
+          <meshStandardMaterial {...partMaterialProps(palette.joint, isPartSelected('pelvis'))} />
         </mesh>
 
         <group
           ref={(node) => { if (node) rigRefs.current.torso = node; }}
-          position={[0, 0.18, 0]}
+          position={[0, 0.19, 0]}
           onClick={(e) => handlePartClick(e, 'torso')}
         >
-          <mesh position={[0, 0.35, 0]} castShadow receiveShadow>
-            <boxGeometry args={[0.64, 0.72, 0.34]} />
-            <meshStandardMaterial {...partMaterialProps(palette.primary, isPartSelected('torso'))} />
+          <BodyBox args={[0.38, 0.16, 0.26]} color={palette.secondary} selected={isPartSelected('torso')} position={[0, -0.02, 0]} radius={0.055} />
+          <BodyBox args={[0.46, 0.34, 0.31]} color={palette.primary} selected={isPartSelected('torso')} position={[0, 0.2, 0]} radius={0.065} />
+          <BodyBox args={[0.6, 0.21, 0.34]} color={palette.primary} selected={isPartSelected('torso')} position={[0, 0.44, 0]} radius={0.07} />
+          <BodyBox args={[0.76, 0.12, 0.36]} color={palette.trim} selected={isPartSelected('torso')} position={[0, 0.61, 0.01]} radius={0.055} />
+          <BodyBox args={[0.16, 0.12, 0.055]} color={palette.joint} selected={isPartSelected('torso')} position={[0, 0.4, 0.19]} />
+          <mesh position={[-0.39, 0.62, 0]} raycast={() => null}>
+            <sphereGeometry args={[0.065, 14, 14]} />
+            <meshStandardMaterial {...partMaterialProps(palette.joint, isPartSelected('torso'))} />
           </mesh>
-          <mesh position={[0, 0.75, 0.01]} castShadow receiveShadow>
-            <boxGeometry args={[0.72, 0.12, 0.36]} />
-            <meshStandardMaterial {...partMaterialProps(palette.trim, isPartSelected('torso'))} />
+          <mesh position={[0.39, 0.62, 0]} raycast={() => null}>
+            <sphereGeometry args={[0.065, 14, 14]} />
+            <meshStandardMaterial {...partMaterialProps(palette.joint, isPartSelected('torso'))} />
           </mesh>
 
           <group
             ref={(node) => { if (node) rigRefs.current.head = node; }}
-            position={[0, 0.92, 0]}
+            position={[0, 0.75, 0]}
             onClick={(e) => handlePartClick(e, 'head')}
           >
-            <JointBall color={palette.joint} radius={0.055} selected={isPartSelected('head')} />
-            <mesh position={[0, 0.2, 0]} castShadow receiveShadow>
+            <JointBall color={palette.joint} radius={0.045} selected={isPartSelected('head')} />
+            <NeckColumn color={palette.trim} selected={isPartSelected('head')} />
+            <BodyBox args={[0.18, 0.08, 0.16]} color={palette.trim} selected={isPartSelected('head')} position={[0, -0.06, 0]} radius={0.035} />
+            <mesh position={[0, 0.25, 0]} castShadow receiveShadow>
               <sphereGeometry args={[0.19, 24, 24]} />
               <meshStandardMaterial {...partMaterialProps(palette.trim, isPartSelected('head'))} />
             </mesh>
-            <mesh position={[0, 0.2, 0.15]} castShadow>
-              <boxGeometry args={[0.19, 0.045, 0.025]} />
+            <mesh position={[0, 0.25, 0.155]} castShadow>
+              <boxGeometry args={[0.15, 0.04, 0.026]} />
+              <meshStandardMaterial {...partMaterialProps(palette.joint, isPartSelected('head'))} />
+            </mesh>
+            <mesh position={[0, 0.18, 0.17]} castShadow>
+              <boxGeometry args={[0.06, 0.035, 0.026]} />
               <meshStandardMaterial {...partMaterialProps(palette.joint, isPartSelected('head'))} />
             </mesh>
           </group>
 
           <group
             ref={(node) => { if (node) rigRefs.current.leftUpperArm = node; }}
-            position={[-0.43, 0.73, 0]}
+            position={[-0.39, 0.61, 0]}
             rotation={[0, 0, THREE.MathUtils.degToRad(-12)]}
             onClick={(e) => handlePartClick(e, 'leftUpperArm')}
           >
             <JointBall color={palette.joint} selected={isPartSelected('leftUpperArm')} />
-            <LimbSegment length={0.46} radius={0.055} color={palette.primary} selected={isPartSelected('leftUpperArm')} />
+            <LimbSegment length={0.5} radius={0.048} radiusTop={0.055} radiusBottom={0.043} color={palette.primary} selected={isPartSelected('leftUpperArm')} />
             <group
               ref={(node) => { if (node) rigRefs.current.leftForearm = node; }}
-              position={[0, -0.46, 0]}
+              position={[0, -0.5, 0]}
               onClick={(e) => handlePartClick(e, 'leftForearm')}
             >
-              <JointBall color={palette.joint} radius={0.06} selected={isPartSelected('leftForearm')} />
-              <LimbSegment length={0.42} radius={0.048} color={palette.secondary} selected={isPartSelected('leftForearm')} />
+              <JointBall color={palette.joint} radius={0.052} selected={isPartSelected('leftForearm')} />
+              <LimbSegment length={0.45} radius={0.042} radiusTop={0.043} radiusBottom={0.035} color={palette.secondary} selected={isPartSelected('leftForearm')} />
               <group
                 ref={(node) => { if (node) rigRefs.current.leftHandTerminal = node; }}
-                position={[0, -0.43, 0]}
+                position={[0, -0.47, 0]}
                 onClick={(e) => handlePartClick(e, 'leftHandTerminal')}
               >
                 <HandSymbol
@@ -308,22 +388,22 @@ export function ActorMannequin({
 
           <group
             ref={(node) => { if (node) rigRefs.current.rightUpperArm = node; }}
-            position={[0.43, 0.73, 0]}
+            position={[0.39, 0.61, 0]}
             rotation={[0, 0, THREE.MathUtils.degToRad(12)]}
             onClick={(e) => handlePartClick(e, 'rightUpperArm')}
           >
             <JointBall color={palette.joint} selected={isPartSelected('rightUpperArm')} />
-            <LimbSegment length={0.46} radius={0.055} color={palette.primary} selected={isPartSelected('rightUpperArm')} />
+            <LimbSegment length={0.5} radius={0.048} radiusTop={0.055} radiusBottom={0.043} color={palette.primary} selected={isPartSelected('rightUpperArm')} />
             <group
               ref={(node) => { if (node) rigRefs.current.rightForearm = node; }}
-              position={[0, -0.46, 0]}
+              position={[0, -0.5, 0]}
               onClick={(e) => handlePartClick(e, 'rightForearm')}
             >
-              <JointBall color={palette.joint} radius={0.06} selected={isPartSelected('rightForearm')} />
-              <LimbSegment length={0.42} radius={0.048} color={palette.secondary} selected={isPartSelected('rightForearm')} />
+              <JointBall color={palette.joint} radius={0.052} selected={isPartSelected('rightForearm')} />
+              <LimbSegment length={0.45} radius={0.042} radiusTop={0.043} radiusBottom={0.035} color={palette.secondary} selected={isPartSelected('rightForearm')} />
               <group
                 ref={(node) => { if (node) rigRefs.current.rightHandTerminal = node; }}
-                position={[0, -0.43, 0]}
+                position={[0, -0.47, 0]}
                 onClick={(e) => handlePartClick(e, 'rightHandTerminal')}
               >
                 <HandSymbol
@@ -338,54 +418,52 @@ export function ActorMannequin({
 
         <group
           ref={(node) => { if (node) rigRefs.current.leftThigh = node; }}
-          position={[-0.18, -0.14, 0]}
+          position={[-0.25, -0.13, 0]}
           onClick={(e) => handlePartClick(e, 'leftThigh')}
         >
-          <JointBall color={palette.joint} radius={0.07} selected={isPartSelected('leftThigh')} />
-          <LimbSegment length={0.56} radius={0.07} color={palette.primary} selected={isPartSelected('leftThigh')} />
+          <JointBall color={palette.joint} radius={0.064} selected={isPartSelected('leftThigh')} />
+          <LimbSegment length={0.61} radius={0.058} radiusTop={0.075} radiusBottom={0.052} color={palette.primary} selected={isPartSelected('leftThigh')} />
           <group
             ref={(node) => { if (node) rigRefs.current.leftShin = node; }}
-            position={[0, -0.56, 0]}
+            position={[0, -0.61, 0]}
             onClick={(e) => handlePartClick(e, 'leftShin')}
           >
-            <JointBall color={palette.joint} radius={0.065} selected={isPartSelected('leftShin')} />
-            <LimbSegment length={0.55} radius={0.056} color={palette.secondary} selected={isPartSelected('leftShin')} />
+            <JointBall color={palette.joint} radius={0.052} selected={isPartSelected('leftShin')} />
+            <LimbSegment length={0.57} radius={0.047} radiusTop={0.049} radiusBottom={0.038} color={palette.secondary} selected={isPartSelected('leftShin')} />
             <group
               ref={(node) => { if (node) rigRefs.current.leftFoot = node; }}
-              position={[0, -0.56, 0.05]}
+              position={[0, -0.58, 0.07]}
               onClick={(e) => handlePartClick(e, 'leftFoot')}
             >
-              <mesh position={[0, -0.035, 0.09]} castShadow receiveShadow>
-                <boxGeometry args={[0.18, 0.09, 0.34]} />
+              <RoundedBox args={[0.2, 0.075, 0.4]} radius={0.025} smoothness={4} position={[0, -0.035, 0.12]} castShadow receiveShadow>
                 <meshStandardMaterial {...partMaterialProps(palette.trim, isPartSelected('leftFoot'))} />
-              </mesh>
+              </RoundedBox>
             </group>
           </group>
         </group>
 
         <group
           ref={(node) => { if (node) rigRefs.current.rightThigh = node; }}
-          position={[0.18, -0.14, 0]}
+          position={[0.25, -0.13, 0]}
           onClick={(e) => handlePartClick(e, 'rightThigh')}
         >
-          <JointBall color={palette.joint} radius={0.07} selected={isPartSelected('rightThigh')} />
-          <LimbSegment length={0.56} radius={0.07} color={palette.primary} selected={isPartSelected('rightThigh')} />
+          <JointBall color={palette.joint} radius={0.064} selected={isPartSelected('rightThigh')} />
+          <LimbSegment length={0.61} radius={0.058} radiusTop={0.075} radiusBottom={0.052} color={palette.primary} selected={isPartSelected('rightThigh')} />
           <group
             ref={(node) => { if (node) rigRefs.current.rightShin = node; }}
-            position={[0, -0.56, 0]}
+            position={[0, -0.61, 0]}
             onClick={(e) => handlePartClick(e, 'rightShin')}
           >
-            <JointBall color={palette.joint} radius={0.065} selected={isPartSelected('rightShin')} />
-            <LimbSegment length={0.55} radius={0.056} color={palette.secondary} selected={isPartSelected('rightShin')} />
+            <JointBall color={palette.joint} radius={0.052} selected={isPartSelected('rightShin')} />
+            <LimbSegment length={0.57} radius={0.047} radiusTop={0.049} radiusBottom={0.038} color={palette.secondary} selected={isPartSelected('rightShin')} />
             <group
               ref={(node) => { if (node) rigRefs.current.rightFoot = node; }}
-              position={[0, -0.56, 0.05]}
+              position={[0, -0.58, 0.07]}
               onClick={(e) => handlePartClick(e, 'rightFoot')}
             >
-              <mesh position={[0, -0.035, 0.09]} castShadow receiveShadow>
-                <boxGeometry args={[0.18, 0.09, 0.34]} />
+              <RoundedBox args={[0.2, 0.075, 0.4]} radius={0.025} smoothness={4} position={[0, -0.035, 0.12]} castShadow receiveShadow>
                 <meshStandardMaterial {...partMaterialProps(palette.trim, isPartSelected('rightFoot'))} />
-              </mesh>
+              </RoundedBox>
             </group>
           </group>
         </group>

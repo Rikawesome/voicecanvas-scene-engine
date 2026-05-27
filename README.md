@@ -30,6 +30,7 @@ VoiceCanvas aims to solve that by letting creators direct the scene first. The 3
 - Camera presets for wide, standoff, impact, over-shoulder, low-angle, close-up, and high-angle framing
 - Mood presets for cinematic lighting direction
 - Scene export/import as JSON
+- Structured canvas instruction input for future agent handoff
 - Mobile canvas-first bottom-sheet controls
 
 ## Example Commands
@@ -96,6 +97,8 @@ Planned next areas:
 - structured storyboard-to-canvas instruction handoff
 - richer camera composition logic
 - eventual image-generation guidance export
+
+See [Canvas Instruction Schema](docs/CANVAS_INSTRUCTION_SCHEMA.md) for the current structured object that future Python/story agents should send into the scene engine.
 
 ## Important Notes
 
